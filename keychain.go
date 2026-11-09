@@ -14,7 +14,7 @@ import (
 // An absolute path keeps a credential tool from running whatever "security" is
 // first on PATH. Using Apple's binary also means one Keychain "Always Allow"
 // grant survives every rebuild of ccrotate.
-const securityBin = "/usr/bin/security"
+var securityBin = "/usr/bin/security"
 
 // errSecItemNotFound as reported by security(1).
 const securityExitItemNotFound = 44

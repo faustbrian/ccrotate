@@ -25,6 +25,10 @@ uninstall:
 fmt:
     gofmt -w .
 
+# Run the tests
+test:
+    go test ./...
+
 # Fail on unformatted code or vet findings
 check:
     test -z "$(gofmt -l .)"

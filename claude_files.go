@@ -14,8 +14,9 @@ import (
 // proper-lockfile directories. Taking the same locks stops a refresh from
 // landing in the middle of a switch and overwriting it. Order and names are
 // from claude-swap (src/claude_swap/claude_locks.py, Claude Code 2.1.218).
+var claudeLockWait = 9 * time.Second
+
 const (
-	claudeLockWait     = 9 * time.Second
 	claudeLockRetry    = 200 * time.Millisecond
 	claudeLockTouching = 3 * time.Second
 )
