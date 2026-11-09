@@ -68,7 +68,7 @@ func acquireStateLock() (*os.File, error) {
 	}
 
 	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX); err != nil {
-		file.Close()
+		_ = file.Close()
 		return nil, fmt.Errorf("lock ccrotate state: %w", err)
 	}
 
@@ -187,7 +187,7 @@ func readLiveCredentials() (credentialItem, error) {
 
 	raw, err := keychainRead(claudeKeychainService, keychainAccount)
 	if errors.Is(err, errKeychainItemNotFound) {
-		return nil, errors.New("Claude Code is not logged in on this Mac")
+		return nil, errors.New("no Claude Code login found on this Mac")
 	}
 	if err != nil {
 		return nil, err

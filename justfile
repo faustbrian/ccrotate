@@ -29,6 +29,10 @@ fmt:
 test:
     go test ./...
 
+# Run the linter, on the Go line it was built for
+lint:
+    GOTOOLCHAIN=go1.26.10 golangci-lint run
+
 # Fail on unformatted code or vet findings
 check:
     test -z "$(gofmt -l .)"

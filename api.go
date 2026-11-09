@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -108,7 +109,7 @@ func fetchAccountUUID(accessToken string) (string, error) {
 }
 
 func getJSON(url, accessToken string, target any) error {
-	request, err := http.NewRequest(http.MethodGet, url, nil)
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}
@@ -148,7 +149,7 @@ func refreshTokens(login oauthLogin) (tokenResponse, error) {
 		return tokenResponse{}, err
 	}
 
-	request, err := http.NewRequest(http.MethodPost, tokenURL, bytes.NewReader(body))
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodPost, tokenURL, bytes.NewReader(body))
 	if err != nil {
 		return tokenResponse{}, err
 	}

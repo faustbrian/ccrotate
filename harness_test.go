@@ -55,13 +55,16 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	os.Setenv("HOME", home)
+	if err := os.Setenv("HOME", home); err != nil {
+		panic(err)
+	}
+
 	securityBin = filepath.Join(home, "security-not-configured")
 	httpClient = &http.Client{Transport: refuseNetwork{}}
 	log.SetOutput(io.Discard)
 
 	code := m.Run()
-	os.RemoveAll(home)
+	_ = os.RemoveAll(home)
 	os.Exit(code)
 }
 

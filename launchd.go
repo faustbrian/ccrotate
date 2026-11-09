@@ -2,12 +2,14 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/xml"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 const agentLabel = "sh.cline.ccrotate"
@@ -15,6 +17,8 @@ const agentLabel = "sh.cline.ccrotate"
 // 20 usage requests an hour, under the roughly 30 per hour per account that
 // claude-swap measured (src/claude_swap/poll_policy.py).
 const tickIntervalSeconds = 180
+
+const launchctlTimeout = 15 * time.Second
 
 const agentPlistTemplate = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -45,7 +49,10 @@ func launchdDomain() string {
 }
 
 func agentIsLoaded() bool {
-	return exec.Command("/bin/launchctl", "print", launchdDomain()+"/"+agentLabel).Run() == nil
+	ctx, cancel := context.WithTimeout(context.Background(), launchctlTimeout)
+	defer cancel()
+
+	return exec.CommandContext(ctx, "/bin/launchctl", "print", launchdDomain()+"/"+agentLabel).Run() == nil
 }
 
 func installAgent() error {
@@ -109,7 +116,10 @@ func uninstallAgent() error {
 }
 
 func runLaunchctl(args ...string) error {
-	output, err := exec.Command("/bin/launchctl", args...).CombinedOutput()
+	ctx, cancel := context.WithTimeout(context.Background(), launchctlTimeout)
+	defer cancel()
+
+	output, err := exec.CommandContext(ctx, "/bin/launchctl", args...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("launchctl %s: %w: %s", args[0], err, strings.TrimSpace(string(output)))
 	}
