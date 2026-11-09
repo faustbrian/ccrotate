@@ -53,7 +53,7 @@ func run(args []string) error {
 			return err
 		}
 		return removeAccount(name)
-	case "ls", "list":
+	case "ls":
 		if len(commandArgs) != 0 {
 			return errors.New(usageText)
 		}
