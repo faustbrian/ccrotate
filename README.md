@@ -54,6 +54,7 @@ change them.
 | --- | --- |
 | `ccrotate add <name>` | Save the account currently logged in to Claude Code |
 | `ccrotate rm <name>` | Forget a saved account |
+| `ccrotate ls` | Show each account's usage left and reset times |
 | `ccrotate on [--5h N] [--7d N]` | Rotate at these usage percentages |
 | `ccrotate off` | Stop rotating |
 
@@ -63,6 +64,9 @@ saved. Names may use letters, digits and `. _ @ + -`.
 Saved logins eventually expire. When one does, ccrotate skips that account and
 logs why. Fix it with `/login` as that account, then `ccrotate add` with the
 same name.
+
+`ccrotate ls` reads every account's usage. It renews a saved account's expired
+access token the same way rotation does, but never touches the live account's.
 
 To see what it is doing:
 

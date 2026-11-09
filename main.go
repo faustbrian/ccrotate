@@ -13,6 +13,7 @@ import (
 const usageText = `usage:
   ccrotate add <name>            save the account currently logged in to Claude Code
   ccrotate rm <name>             forget a saved account
+  ccrotate ls                    show each account's usage left and reset times
   ccrotate on [--5h 98] [--7d 98]  rotate at these usage percentages
   ccrotate off                   stop rotating`
 
@@ -52,6 +53,11 @@ func run(args []string) error {
 			return err
 		}
 		return removeAccount(name)
+	case "ls", "list":
+		if len(commandArgs) != 0 {
+			return errors.New(usageText)
+		}
+		return listAccounts(os.Stdout)
 	case "on":
 		return turnOn(commandArgs)
 	case "off":

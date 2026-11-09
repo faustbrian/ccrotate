@@ -78,6 +78,7 @@ type apiAccount struct {
 	uuid     string
 	fiveHour any
 	sevenDay any
+	resetsAt string
 }
 
 // fakeAnthropic answers the usage, profile and token endpoints.
@@ -107,8 +108,8 @@ func (api *fakeAnthropic) RoundTrip(request *http.Request) (*http.Response, erro
 	switch request.URL.Path {
 	case "/api/oauth/usage":
 		body, _ := json.Marshal(map[string]any{
-			"five_hour": map[string]any{"utilization": account.fiveHour},
-			"seven_day": map[string]any{"utilization": account.sevenDay},
+			"five_hour": map[string]any{"utilization": account.fiveHour, "resets_at": nullable(account.resetsAt)},
+			"seven_day": map[string]any{"utilization": account.sevenDay, "resets_at": nullable(account.resetsAt)},
 		})
 		return respond(http.StatusOK, string(body)), nil
 	case "/api/oauth/profile":
@@ -137,6 +138,13 @@ func (api *fakeAnthropic) answerRefresh(request *http.Request) (*http.Response, 
 		"expires_in":    refreshed.ExpiresIn,
 	})
 	return respond(http.StatusOK, string(encoded)), nil
+}
+
+func nullable(value string) any {
+	if value == "" {
+		return nil
+	}
+	return value
 }
 
 func respond(status int, body string) *http.Response {

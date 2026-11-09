@@ -30,7 +30,8 @@ var httpClient = &http.Client{Timeout: requestTimeout}
 // usageWindow is a nil-able percentage: the usage API allows utilization to be
 // null, and omits windows an account's plan does not have.
 type usageWindow struct {
-	Utilization *float64 `json:"utilization"`
+	Utilization *float64   `json:"utilization"`
+	ResetsAt    *time.Time `json:"resets_at"`
 }
 
 type usageReading struct {
