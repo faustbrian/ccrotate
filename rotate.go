@@ -86,6 +86,68 @@ func rotateIfNeeded() error {
 	return nil
 }
 
+// useAccount makes a saved account the live login whatever its usage, so an
+// account about to reset can be drained first.
+func useAccount(name string) error {
+	cfg, err := loadConfig()
+	if err != nil {
+		return err
+	}
+
+	if indexOfName(cfg.Accounts, name) < 0 {
+		return fmt.Errorf("no saved account named %s", name)
+	}
+
+	live, err := readLiveCredentials()
+	if err != nil {
+		return err
+	}
+
+	liveLogin, err := live.login()
+	if err != nil {
+		return err
+	}
+
+	accountUUID, err := fetchAccountUUID(liveLogin.AccessToken)
+	if err != nil {
+		return fmt.Errorf("identify the logged-in account: %w", err)
+	}
+
+	activeIndex := indexOfAccount(cfg.Accounts, accountUUID)
+	if activeIndex < 0 {
+		return errors.New("the live login is not a saved account; ccrotate add it first so its tokens are kept")
+	}
+
+	active := cfg.Accounts[activeIndex]
+	if active.Name == name {
+		fmt.Printf("%s is already live\n", name)
+		return nil
+	}
+
+	next, _, err := checkSavedAccount(name)
+	if err != nil {
+		return fmt.Errorf("check %s: %w", name, err)
+	}
+
+	if err := switchLogin(active.Name, next, liveLogin.AccessToken); err != nil {
+		return fmt.Errorf("switch %s to %s: %w", active.Name, name, err)
+	}
+
+	log.Printf("switched %s to %s on request", active.Name, name)
+	fmt.Printf("switched %s to %s\n", active.Name, name)
+	return nil
+}
+
+func indexOfName(accounts []savedAccount, name string) int {
+	for index, account := range accounts {
+		if account.Name == name {
+			return index
+		}
+	}
+
+	return -1
+}
+
 func indexOfAccount(accounts []savedAccount, accountUUID string) int {
 	for index, account := range accounts {
 		if account.AccountUUID == accountUUID {

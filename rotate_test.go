@@ -352,3 +352,36 @@ func TestLoginRejectsCredentialsWithoutTokens(t *testing.T) {
 		})
 	}
 }
+
+func TestUseInstallsChosenAccountEvenWhenItIsNotNext(t *testing.T) {
+	w := threeAccounts(t)
+	w.setUsage("a-live-access", "uuid-a", 0.0, 10.0)
+	w.setUsage("c-access", "uuid-c", 99.0, 99.0)
+
+	w.must(useAccount("c"))
+
+	assertLiveAccess(t, w, "c-access")
+	if got := w.cachedIdentityUUID(); got != "uuid-c" {
+		t.Fatalf("~/.claude.json identity = %q, want uuid-c", got)
+	}
+	if got := w.storedLogin("a").RefreshToken; got != "a-live-refresh" {
+		t.Fatalf("stored refresh token for a = %q, want the live one", got)
+	}
+}
+
+func TestUseRejectsUnknownAccount(t *testing.T) {
+	w := threeAccounts(t)
+
+	if err := useAccount("missing"); err == nil {
+		t.Fatal("use switched to an account that is not saved")
+	}
+	assertLiveAccess(t, w, "a-live-access")
+}
+
+func TestUseLeavesLiveAccountAloneWhenAlreadyLive(t *testing.T) {
+	w := threeAccounts(t)
+
+	w.must(useAccount("a"))
+
+	assertLiveAccess(t, w, "a-live-access")
+}

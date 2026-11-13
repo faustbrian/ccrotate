@@ -55,6 +55,7 @@ change them.
 | `ccrotate add <name>` | Save the account currently logged in to Claude Code |
 | `ccrotate rm <name>` | Forget a saved account |
 | `ccrotate ls` | Show each account's usage left and reset times |
+| `ccrotate use <name>` | Make a saved account the live login now, whatever its usage |
 | `ccrotate on [--5h N] [--7d N]` | Rotate at these usage percentages |
 | `ccrotate off` | Stop rotating |
 
